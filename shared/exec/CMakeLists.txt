@@ -22,6 +22,7 @@ include(../../packaging/cmake-inc/packaging/CMakeLists.txt)
 
 wintc_resolve_library(gdk-3.0      GDK)
 wintc_resolve_library(gio-2.0      GIO)
+wintc_resolve_library(gio-unix-2.0 GIO_UNIX)
 wintc_resolve_library(glib-2.0     GLIB)
 wintc_resolve_library(gtk+-3.0     GTK3)
 wintc_resolve_library(wintc-comgtk WINTC_COMGTK)
@@ -58,6 +59,7 @@ target_include_directories(
     BEFORE
     PRIVATE ${GDK_INCLUDE_DIRS}
     PRIVATE ${GIO_INCLUDE_DIRS}
+    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
@@ -67,6 +69,7 @@ target_link_directories(
     libwintc-exec
     PRIVATE ${GDK_LIBRARY_DIRS}
     PRIVATE ${GIO_LIBRARY_DIRS}
+    PRIVATE ${GIO_UNIX_LIBRARY_DIRS}
     PRIVATE ${GLIB_LIBRARY_DIRS}
     PRIVATE ${GTK3_LIBRARY_DIRS}
     PRIVATE ${WINTC_COMGTK_LIBRARY_DIRS}
@@ -76,6 +79,7 @@ target_link_libraries(
     libwintc-exec
     PRIVATE ${GDK_LIBRARIES}
     PRIVATE ${GIO_LIBRARIES}
+    PRIVATE ${GIO_UNIX_LIBRARIES}
     PRIVATE ${GLIB_LIBRARIES}
     PRIVATE ${GTK3_LIBRARIES}
     PRIVATE ${WINTC_COMGTK_LIBRARIES}
