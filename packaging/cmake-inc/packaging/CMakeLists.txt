@@ -172,7 +172,8 @@ function(wintc_configure_and_install_packaging)
 
     # Handle the package formats here
     #
-    if (${WINTC_PKGMGR} STREQUAL "raw")
+    if (${WINTC_PKGMGR} STREQUAL "raw"
+     OR ${WINTC_PKGMGR} STREQUAL "nix")
         message(STATUS "Outputting raw build (no package manager)")
     elseif (${WINTC_PKGMGR} STREQUAL "apk")
         message(STATUS "Outputting build for Alpine Linux packaging")
