@@ -80,6 +80,9 @@ def main():
                 rel_res_name = rel_res_name.strip()
 
                 for size in sizes:
+                    if not (res_path / size / f"{rel_res_name}.png").exists():
+                        continue
+
                     target_res_path = res_path_rel_to_mapping / size / f"{rel_res_name}.png"
                     theme_icon_path = output_dir / size / f"{rel_icon_path}.png"
 
