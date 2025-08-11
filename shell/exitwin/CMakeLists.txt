@@ -36,7 +36,7 @@ add_executable(
     src/application.c
     src/application.h
     src/main.c
-    src/meta.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
 )
 
 target_compile_options(
@@ -47,6 +47,7 @@ target_compile_options(
 target_include_directories(
     wintc-exitwin
     SYSTEM
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GIO_INCLUDE_DIRS}
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}

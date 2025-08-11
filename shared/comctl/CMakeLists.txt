@@ -32,7 +32,7 @@ wintc_compile_resources()
 
 add_library(
     libwintc-comctl
-    src/resources.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
     src/animctl.c
     public/animctl.h
     src/cpl.c

@@ -33,8 +33,8 @@ add_library(
     libwintc-shcommon
     src/fs.c
     public/fs.h
-    src/marshal.c
-    src/marshal.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.h
     src/monitor.c
     public/monitor.h
     src/path.c
@@ -59,6 +59,7 @@ target_include_directories(
     libwintc-shcommon
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}

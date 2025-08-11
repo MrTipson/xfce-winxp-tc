@@ -48,7 +48,7 @@ set(
     src/application.c
     src/application.h
     src/main.c
-    src/meta.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
     src/resources.c
     src/toolbar.c
     src/toolbar.h
@@ -110,6 +110,7 @@ target_include_directories(
     wintc-taskband
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${CANBERRA_INCLUDE_DIRS}
     PRIVATE ${CANBERRA_GTK3_INCLUDE_DIRS}
     PRIVATE ${GARCON_INCLUDE_DIRS}

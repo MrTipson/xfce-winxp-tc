@@ -43,7 +43,7 @@ set(
 set(WINTC_CONFIG_H_IN_PATH ${CMAKE_CURRENT_LIST_DIR}/config.h.in)
 
 function(wintc_create_config_h)
-    configure_file(${WINTC_CONFIG_H_IN_PATH} ${PROJECT_ROOT}/src/config.h @ONLY)
+    configure_file(${WINTC_CONFIG_H_IN_PATH} ${CMAKE_CURRENT_BINARY_DIR}/src/config.h @ONLY)
 endfunction()
 
 # Define build for meta.h
@@ -51,7 +51,7 @@ endfunction()
 set(WINTC_META_H_IN_PATH ${CMAKE_CURRENT_LIST_DIR}/meta.h.in)
 
 function(wintc_create_meta_h)
-    configure_file(${WINTC_META_H_IN_PATH} ${PROJECT_ROOT}/src/meta.h @ONLY)
+    configure_file(${WINTC_META_H_IN_PATH} ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h @ONLY)
 endfunction()
 
 # Define build for languages

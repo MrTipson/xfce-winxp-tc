@@ -39,7 +39,7 @@ add_executable(
     src/application.h
     src/intapi.h
     src/main.c
-    src/meta.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
     src/pageproc.c
     src/pageproc.h
     src/procmon.c
@@ -63,6 +63,7 @@ target_compile_options(
 target_include_directories(
     wintc-taskmgr
     SYSTEM
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}

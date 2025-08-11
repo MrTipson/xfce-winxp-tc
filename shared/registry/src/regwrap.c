@@ -1,7 +1,7 @@
 #include <glib.h>
 #include <wintc/comgtk.h>
 
-#include "../public/reg-dbus.h"
+#include "reg-dbus.h"
 #include "../public/regwrap.h"
 
 //

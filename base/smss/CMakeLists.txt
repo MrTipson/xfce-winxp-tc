@@ -45,8 +45,8 @@ add_executable(
     src/main.c
     src/xfsm.c
     src/xfsm.h
-    src/xfsm-dbus.c
-    src/xfsm-dbus.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/xfsm-dbus.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/xfsm-dbus.h
 )
 
 set_target_properties(
@@ -64,6 +64,7 @@ target_include_directories(
     wintc-smss
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
@@ -77,6 +78,7 @@ target_include_directories(
 
 target_link_directories(
     wintc-smss
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_LIBRARY_DIRS}
     PRIVATE ${GTK3_LIBRARY_DIRS}
     PRIVATE ${WINTC_COMGTK_LIBRARY_DIRS}

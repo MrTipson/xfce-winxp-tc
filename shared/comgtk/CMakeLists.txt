@@ -28,8 +28,11 @@ wintc_resolve_library(gio-2.0  GIO)
 wintc_resolve_library(glib-2.0 GLIB)
 wintc_resolve_library(gtk+-3.0 GTK3)
 
-configure_file(public/location.h.in ${PROJECT_ROOT}/public/location.h @ONLY)
-configure_file(src/version.c.in   ${PROJECT_ROOT}/src/version.c   @ONLY)
+configure_file(public/location.h.in ${CMAKE_CURRENT_BINARY_DIR}/public/location.h @ONLY)
+configure_file(src/version.c.in   ${CMAKE_CURRENT_BINARY_DIR}/src/version.c   @ONLY)
+
+file(COPY public/errors.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/public)
+file(COPY public/version.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/public)
 
 add_library(
     libwintc-comgtk
@@ -58,7 +61,7 @@ add_library(
     public/list.h
     src/listbox.c
     public/listbox.h
-    public/location.h
+    ${CMAKE_CURRENT_BINARY_DIR}/public/location.h
     src/marshal.c
     public/marshal.h
     src/memory.c
@@ -78,7 +81,7 @@ add_library(
     public/strings.h
     src/styles.c
     public/styles.h
-    src/version.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/version.c
     public/version.h
     src/window.c
     public/window.h
@@ -100,6 +103,7 @@ target_include_directories(
     libwintc-comgtk
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/public
     PRIVATE ${GIO_INCLUDE_DIRS}
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}

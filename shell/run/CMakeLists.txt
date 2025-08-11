@@ -41,7 +41,7 @@ add_executable(
     src/history.h
     src/history.c
     src/main.c
-    src/meta.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
 )
 
 set_target_properties(
@@ -59,6 +59,7 @@ target_include_directories(
     wintc-shell-run
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GDK_INCLUDE_DIRS}
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}

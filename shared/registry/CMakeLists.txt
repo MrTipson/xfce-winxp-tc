@@ -37,9 +37,9 @@ wintc_gdbus_codegen(
 
 add_library(
     libwintc-registry
-    public/reg-dbus.h
-    src/reg-dbus.c
-    src/reg-dbus.h
+    ${CMAKE_CURRENT_BINARY_DIR}/public/reg-dbus.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/reg-dbus.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/reg-dbus.h
     src/regwrap.c
     public/regwrap.h
     src/variant.c
@@ -62,6 +62,7 @@ target_include_directories(
     libwintc-registry
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/public
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}

@@ -26,14 +26,14 @@ wintc_resolve_library(gtk+-3.0       GTK3)
 wintc_resolve_library(wintc-comgtk   WINTC_COMGTK)
 wintc_resolve_library(wintc-shcommon WINTC_SHCOMMON)
 
-configure_file(public/domain.h.in ${PROJECT_ROOT}/public/domain.h @ONLY)
+configure_file(public/domain.h.in ${CMAKE_CURRENT_BINARY_DIR}/public/domain.h @ONLY)
 
 wintc_create_config_h()
 
 add_library(
     libwintc-shlang
-    src/config.h
-    public/domain.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/public/domain.h
     src/controls.c
     public/controls.h
     src/places.c
@@ -59,6 +59,7 @@ target_include_directories(
     libwintc-shlang
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}

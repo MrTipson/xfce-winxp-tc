@@ -38,8 +38,8 @@ function(wintc_install_public_headers)
     get_target_property(LIB_SOURCES ${PROJECT_NAME} SOURCES)
 
     foreach (SOURCE_FILEPATH IN LISTS LIB_SOURCES)
-        if (${SOURCE_FILEPATH} MATCHES "^public/(.+)")
-            list(APPEND LIB_PUBLIC_HEADERS ${CMAKE_MATCH_0})
+        if (${SOURCE_FILEPATH} MATCHES "public/(.+)")
+            list(APPEND LIB_PUBLIC_HEADERS ${SOURCE_FILEPATH})
         else()
             continue()
         endif()
@@ -49,7 +49,7 @@ function(wintc_install_public_headers)
     # one for install, and one strictly for local lib builds
     #
     set(LIB_HEADER_DIR "${LIB_NAME_SIMPLE}")
-    configure_file(public/libapi.h.in ${PROJECT_ROOT}/public/libapi.h @ONLY)
+    configure_file(public/libapi.h.in ${CMAKE_CURRENT_BINARY_DIR}/public/libapi.h @ONLY)
 
     set(LIB_HEADER_DIR "${PROJECT_ROOT}/public")
     configure_file(public/libapi.h.in wintc/${LIB_NAME_SIMPLE}.h @ONLY)
@@ -63,7 +63,7 @@ function(wintc_install_public_headers)
           DESTINATION ${LIB_INCLUDEDIR}
     )
     install(
-        FILES public/libapi.h
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/public/libapi.h
           DESTINATION ${WINTC_LIB_INCLUDEDIR}
           RENAME ${LIB_NAME_SIMPLE}.h
     )

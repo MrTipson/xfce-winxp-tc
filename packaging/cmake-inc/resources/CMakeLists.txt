@@ -6,6 +6,7 @@ function(wintc_compile_resources)
     set(GRESOURCE_DEPENDENCIES)
 
     find_program(GLIB_COMPILE_RESOURCES glib-compile-resources REQUIRED)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
 
     execute_process(
         COMMAND ${GLIB_COMPILE_RESOURCES} --generate-dependencies resources.xml
@@ -18,11 +19,11 @@ function(wintc_compile_resources)
     list(TRANSFORM GRESOURCE_DEPENDENCIES PREPEND "src/res/")
 
     add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/resources.c
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/res
         COMMAND ${GLIB_COMPILE_RESOURCES}
         ARGS
-            --target=../resources.c
+            --target=${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
             --generate
             resources.xml
         VERBATIM
@@ -33,6 +34,6 @@ function(wintc_compile_resources)
     add_custom_target(
         build-gresources
         DEPENDS
-            src/resources.c
+            ${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
     )
 endfunction()

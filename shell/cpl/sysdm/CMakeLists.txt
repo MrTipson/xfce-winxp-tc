@@ -41,7 +41,7 @@ add_executable(
     src/application.h
     src/intapi.h
     src/main.c
-    src/meta.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
     src/pagegen.c
     src/pagegen.h
     src/resources.c
@@ -63,6 +63,7 @@ target_compile_options(
 target_include_directories(
     wintc-cpl-sysdm
     SYSTEM
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GDK_PIXBUF_INCLUDE_DIRS}
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}

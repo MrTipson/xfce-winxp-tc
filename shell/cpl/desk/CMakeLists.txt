@@ -38,7 +38,7 @@ add_executable(
     src/application.c
     src/application.h
     src/main.c
-    src/meta.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
     src/monitor.c
     src/monitor.h
     src/pagedesk.c
@@ -64,6 +64,7 @@ target_compile_options(
 target_include_directories(
     wintc-cpl-desk
     SYSTEM
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}

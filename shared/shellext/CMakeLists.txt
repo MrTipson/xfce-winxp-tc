@@ -29,7 +29,7 @@ wintc_resolve_library(gtk+-3.0     GTK3)
 wintc_resolve_library(wintc-comgtk WINTC_COMGTK)
 wintc_resolve_library(wintc-exec   WINTC_EXEC)
 
-configure_file(src/host_priv.h.in ${PROJECT_ROOT}/src/host_priv.h @ONLY)
+configure_file(src/host_priv.h.in ${CMAKE_CURRENT_BINARY_DIR}/src/host_priv.h @ONLY)
 
 add_library(
     libwintc-shellext
@@ -38,7 +38,7 @@ add_library(
     public/error.h
     src/host.c
     public/host.h
-    src/host_priv.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/host_priv.h
     src/if_uihost.c
     public/if_uihost.h
     src/if_view.c
@@ -65,6 +65,7 @@ target_include_directories(
     libwintc-shellext
     SYSTEM
     BEFORE
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
     PRIVATE ${GLIB_INCLUDE_DIRS}
     PRIVATE ${GTK3_INCLUDE_DIRS}
     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
