@@ -5,4 +5,5 @@ bt,rt:sysinfo
 bt,rt:wintc-comctl
 bt,rt:wintc-comgtk
 bt,rt:wintc-winbrand
+bt,rt:wintc-shell
 bt,rt:wintc-shellext
