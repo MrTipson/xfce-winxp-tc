@@ -870,7 +870,7 @@ static void refresh_personal_menu(
     //        all.menu file
     //
     GarconMenu* all_entries = garcon_menu_new_for_path(
-                                  WINTC_ASSETS_DIR "/shell-res/all.menu"
+                                  WINTC_ASSETS_DIR_NIX "/shell-res/all.menu"
                               );
     GError*     error       = NULL;
 
@@ -935,7 +935,7 @@ static void refresh_userpic(
     //
     static const gchar* css =
         "* { background-image: url('"
-        WINTC_ASSETS_DIR "/shell-res/fpo-userpic.png"
+        WINTC_ASSETS_DIR_NIX "/shell-res/fpo-userpic.png"
         "'); }";
 
     // Give GTK a bump that we want to update the pic

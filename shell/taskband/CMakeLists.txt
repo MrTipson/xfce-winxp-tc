@@ -101,6 +101,8 @@ add_executable(
     ${TASKBAND_SOURCES}
 )
 
+add_compile_definitions(WINTC_ASSETS_DIR_NIX="${CMAKE_INSTALL_PREFIX}/${WINTC_ASSETS_INSTALL_DIR}")
+
 target_compile_options(
     wintc-taskband
     PRIVATE ${WINTC_COMPILE_OPTIONS}
