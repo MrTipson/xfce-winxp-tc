@@ -96,21 +96,7 @@ let
       '';
     };
 in
-lib.updateManyAttrsByPath (map
-  (target: {
-    path = lib.splitString "/" target;
-    update = _: mkComponent target;
-  })
-  (
-    readLines "${src}/packaging/targets"
-    ++ [
-      "shared/registry"
-      "shared/shlang"
-      "shared/shell"
-      "shared/comgtk"
-      "shared/shcommon"
-      "shared/shellext"
-      "shared/comctl"
-    ]
-  )
-) { }
+lib.updateManyAttrsByPath (map (target: {
+  path = lib.splitString "/" target;
+  update = _: mkComponent target;
+}) (readLines "${src}/packaging/targets")) { }
