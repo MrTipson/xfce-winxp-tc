@@ -1,6 +1,7 @@
 {
   stdenv,
   lib,
+  autoPatchelfHook,
   sku ? "xpclient-pro",
   ...
 }@pkgs:
@@ -62,6 +63,8 @@ let
           xorg.libXdmcp
           xorg.libXtst
           xfce.libxfce4ui
+          libwnck
+          xfce.libxfce4windowing
           lerc
           libxkbcommon
           libxklavier
@@ -80,6 +83,7 @@ let
         ++ lib.attrVals (getDeps target) depsMap;
       nativeBuildInputs = with pkgs; [
         pkg-config
+        autoPatchelfHook
       ];
 
       configurePhase = ''
@@ -94,6 +98,14 @@ let
 
         runHook postConfigure
       '';
+      preFixup =
+        if target == "shared/shelldpa" then
+          ''
+            patchelf --add-needed libwnck-3.so $out/lib64/libwintc-shelldpa.so.1.0
+            patchelf --add-needed libxfce4windowing-0.so $out/lib64/libwintc-shelldpa.so.1.0
+          ''
+        else
+          "";
     };
 in
 lib.updateManyAttrsByPath (map (target: {
