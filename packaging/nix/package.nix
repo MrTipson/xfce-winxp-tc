@@ -7,7 +7,7 @@
 }@pkgs:
 with builtins;
 let
-  src = ./.;
+  src = ../..;
   readLines =
     filename:
     lib.optionals (pathExists filename) (
