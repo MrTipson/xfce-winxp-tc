@@ -1,10 +1,4 @@
-{
-  stdenv,
-  lib,
-  autoPatchelfHook,
-  sku ? "xpclient-pro",
-  ...
-}@pkgs:
+{ lib, callPackage, ... }:
 with builtins;
 let
   src = ../..;
@@ -15,73 +9,111 @@ let
     );
   getDeps =
     filename: map (str: elemAt (lib.splitString ":" str) 1) (readLines "${src}/${filename}/deps");
-  depsMap =
-    with pkgs;
-    {
-      "glib2" = glib.dev;
-      "canberra" = libcanberra;
-      "canberra-gtk3" = libcanberra-gtk3;
-      "sass" = sass;
-      "garcon" = xfce.garcon;
-      "garcon-gtk3" = xfce.garcon;
-      "msgfmt" = gettext;
-      "xdg-mime" = xdg-utils;
-      "xcursorgen" = xorg.xcursorgen;
-      "gtk3" = gtk3;
-      "networkmanager" = networkmanager;
-      "pulseaudio" = pulseaudio;
-      "upower-glib" = upower;
-      "webkitgtk" = webkitgtk_4_1;
-      "lightdm" = lightdm;
-      "sqlite3" = sqlite;
-      "plymouth" = plymouth;
-      "gdk-pixbuf2" = gdk-pixbuf;
-      "zip" = libzip;
-      # dummy packages
-      "python3-venv" = cmake;
-      "python3-packaging" = cmake;
-      "sysinfo" = cmake;
-    }
-    // lib.mapAttrs' (name: type: {
-      name = "wintc-${name}";
-      value = mkComponent "shared/${name}";
-    }) (lib.filterAttrs (name: type: type == "directory") (readDir "${src}/shared"));
   mkComponent =
     target:
+    {
+      util-linux,
+      libselinux,
+      libsepol,
+      libthai,
+      libdatrie,
+      xorg,
+      xfce,
+      libwnck,
+      lerc,
+      libxkbcommon,
+      libxklavier,
+      libepoxy,
+      coreutils,
+      cmake,
+      pcre2,
+      libsysprof-capture,
+      python3,
+      stdenv,
+      autoPatchelfHook,
+      glib,
+      libcanberra,
+      libcanberra-gtk3,
+      sass,
+      gettext,
+      xdg-utils,
+      gtk3,
+      networkmanager,
+      pulseaudio,
+      upower,
+      webkitgtk_4_1,
+      lightdm,
+      sqlite,
+      plymouth,
+      gdk-pixbuf,
+      callPackage,
+      libzip,
+      pkg-config,
+      sku ? "xpclient-pro",
+    }:
+    let
+      depsMap =
+        {
+          "glib2" = glib.dev;
+          "canberra" = libcanberra;
+          "canberra-gtk3" = libcanberra-gtk3;
+          "sass" = sass;
+          "garcon" = xfce.garcon;
+          "garcon-gtk3" = xfce.garcon;
+          "msgfmt" = gettext;
+          "xdg-mime" = xdg-utils;
+          "xcursorgen" = xorg.xcursorgen;
+          "gtk3" = gtk3;
+          "networkmanager" = networkmanager;
+          "pulseaudio" = pulseaudio;
+          "upower-glib" = upower;
+          "webkitgtk" = webkitgtk_4_1;
+          "lightdm" = lightdm;
+          "sqlite3" = sqlite;
+          "plymouth" = plymouth;
+          "gdk-pixbuf2" = gdk-pixbuf;
+          "zip" = libzip;
+          # dummy packages
+          "python3-venv" = cmake;
+          "python3-packaging" = cmake;
+          "sysinfo" = cmake;
+        }
+        // lib.mapAttrs' (name: type: {
+          name = "wintc-${name}";
+          value = callPackage (mkComponent "shared/${name}") { };
+        }) (lib.filterAttrs (name: type: type == "directory") (readDir "${src}/shared"));
+    in
     stdenv.mkDerivation {
       inherit src;
       name = "xfce-winxp-tc-${target}";
 
-      buildInputs =
-        with pkgs;
-        [
-          util-linux
-          libselinux
-          libsepol
-          libthai
-          libdatrie
-          xorg.libXdmcp
-          xorg.libXtst
-          xfce.libxfce4ui
-          libwnck
-          xfce.libxfce4windowing
-          lerc
-          libxkbcommon
-          libxklavier
-          libepoxy
-          coreutils
-          cmake
-          pcre2
-          libsysprof-capture
-          (python3.withPackages (
-            p: with p; [
-              pillow
-              packaging
-            ]
-          ))
-        ]
-        ++ lib.attrVals (getDeps target) depsMap;
-      nativeBuildInputs = with pkgs; [
+      buildInputs = [
+        util-linux
+        libselinux
+        libsepol
+        libthai
+        libdatrie
+        xorg.libXdmcp
+        xorg.libXtst
+        xfce.libxfce4ui
+        libwnck
+        xfce.libxfce4windowing
+        lerc
+        libxkbcommon
+        libxklavier
+        libepoxy
+        coreutils
+        cmake
+        pcre2
+        libsysprof-capture
+        (python3.withPackages (
+          p: with p; [
+            pillow
+            packaging
+          ]
+        ))
+      ] ++ lib.attrVals (getDeps target) depsMap;
+      nativeBuildInputs = [
         pkg-config
         autoPatchelfHook
       ];
@@ -110,5 +142,5 @@ let
 in
 lib.updateManyAttrsByPath (map (target: {
   path = lib.splitString "/" target;
-  update = _: mkComponent target;
+  update = _: callPackage (mkComponent target) { };
 }) (readLines "${src}/packaging/targets")) { }
