@@ -80,7 +80,7 @@ let
         }
         // lib.mapAttrs' (name: type: {
           name = "wintc-${name}";
-          value = callPackage (mkComponent "shared/${name}") { };
+          value = callPackage (mkComponent "shared/${name}") { inherit sku; };
         }) (lib.filterAttrs (name: type: type == "directory") (readDir "${src}/shared"));
     in
     stdenv.mkDerivation {

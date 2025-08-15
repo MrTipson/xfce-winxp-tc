@@ -1,0 +1,553 @@
+diff --git a/base/smss/CMakeLists.txt b/base/smss/CMakeLists.txt
+index 9d535fe..c6e3d16 100644
+--- a/base/smss/CMakeLists.txt
++++ b/base/smss/CMakeLists.txt
+@@ -45,8 +45,8 @@ add_executable(
+     src/main.c
+     src/xfsm.c
+     src/xfsm.h
+-    src/xfsm-dbus.c
+-    src/xfsm-dbus.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/xfsm-dbus.c
++    ${CMAKE_CURRENT_BINARY_DIR}/src/xfsm-dbus.h
+ )
+ 
+ set_target_properties(
+@@ -64,6 +64,7 @@ target_include_directories(
+     wintc-smss
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+@@ -77,6 +78,7 @@ target_include_directories(
+ 
+ target_link_directories(
+     wintc-smss
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_LIBRARY_DIRS}
+     PRIVATE ${GTK3_LIBRARY_DIRS}
+     PRIVATE ${WINTC_COMGTK_LIBRARY_DIRS}
+diff --git a/packaging/cmake-inc/codegen/CMakeLists.txt b/packaging/cmake-inc/codegen/CMakeLists.txt
+index 0c32361..abc6a3f 100644
+--- a/packaging/cmake-inc/codegen/CMakeLists.txt
++++ b/packaging/cmake-inc/codegen/CMakeLists.txt
+@@ -7,16 +7,18 @@ set(WINTC_DBUS_DEFAULT_C_PREFIX  ZWin)
+ 
+ function(wintc_gdbus_codegen XML_FILE OUT_FILE_NOEXT IF_PREFIX C_PREFIX CP_PUBLIC)
+     find_program(GDBUS_CODEGEN gdbus-codegen REQUIRED)
++    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/public)
+ 
+     add_custom_command(
+         OUTPUT
+-            ${CMAKE_CURRENT_SOURCE_DIR}/src/${OUT_FILE_NOEXT}.c
+-            ${CMAKE_CURRENT_SOURCE_DIR}/src/${OUT_FILE_NOEXT}.h
++            ${CMAKE_CURRENT_BINARY_DIR}/src/${OUT_FILE_NOEXT}.c
++            ${CMAKE_CURRENT_BINARY_DIR}/src/${OUT_FILE_NOEXT}.h
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+         COMMAND ${GDBUS_CODEGEN}
+         ARGS
+             --interface-prefix ${IF_PREFIX}
+             --generate-c-code ${OUT_FILE_NOEXT}
++            --output-directory ${CMAKE_CURRENT_BINARY_DIR}/src
+             --c-namespace ${C_PREFIX}
+             ${XML_FILE}
+         VERBATIM
+@@ -27,8 +29,8 @@ function(wintc_gdbus_codegen XML_FILE OUT_FILE_NOEXT IF_PREFIX C_PREFIX CP_PUBLI
+     add_custom_target(
+         dbus-codegen
+         DEPENDS
+-            src/${OUT_FILE_NOEXT}.c
+-            src/${OUT_FILE_NOEXT}.h
++            ${CMAKE_CURRENT_BINARY_DIR}/src/${OUT_FILE_NOEXT}.c
++            ${CMAKE_CURRENT_BINARY_DIR}/src/${OUT_FILE_NOEXT}.h
+     )
+ 
+     # If the header is needed in public/ for libraries then copy it
+@@ -38,20 +40,20 @@ function(wintc_gdbus_codegen XML_FILE OUT_FILE_NOEXT IF_PREFIX C_PREFIX CP_PUBLI
+ 
+         add_custom_command(
+             OUTPUT
+-                ${CMAKE_CURRENT_SOURCE_DIR}/public/${OUT_FILE_NOEXT}.h
++                ${CMAKE_CURRENT_BINARY_DIR}/public/${OUT_FILE_NOEXT}.h
+             COMMAND ${CP}
+             ARGS
+-                ${CMAKE_CURRENT_SOURCE_DIR}/src/${OUT_FILE_NOEXT}.h
+-                ${CMAKE_CURRENT_SOURCE_DIR}/public/${OUT_FILE_NOEXT}.h
++                ${CMAKE_CURRENT_BINARY_DIR}/src/${OUT_FILE_NOEXT}.h
++                ${CMAKE_CURRENT_BINARY_DIR}/public/${OUT_FILE_NOEXT}.h
+             VERBATIM
+             DEPENDS
+-                src/${OUT_FILE_NOEXT}.h
++                ${CMAKE_CURRENT_BINARY_DIR}/src/${OUT_FILE_NOEXT}.h
+         )
+ 
+         add_custom_target(
+             dbus-codegen-header
+             DEPENDS
+-                public/${OUT_FILE_NOEXT}.h
++                ${CMAKE_CURRENT_BINARY_DIR}/public/${OUT_FILE_NOEXT}.h
+         )
+     endif()
+ endfunction()
+@@ -60,16 +62,17 @@ endfunction()
+ #
+ function(wintc_glib_genmarshal)
+     find_program(GLIB_GENMARSHAL glib-genmarshal REQUIRED)
++    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
+ 
+     add_custom_command(
+         OUTPUT
+-            ${CMAKE_CURRENT_SOURCE_DIR}/src/marshal.h
++            ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.h
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+         COMMAND ${GLIB_GENMARSHAL}
+         ARGS
+             --header
+             --prefix wintc_cclosure_marshal
+-            --output marshal.h
++            --output ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.h
+             marshals.list
+         VERBATIM
+         DEPENDS
+@@ -77,13 +80,13 @@ function(wintc_glib_genmarshal)
+     )
+     add_custom_command(
+         OUTPUT
+-            ${CMAKE_CURRENT_SOURCE_DIR}/src/marshal.c
++            ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.c
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+         COMMAND ${GLIB_GENMARSHAL}
+         ARGS
+             --body
+             --prefix wintc_cclosure_marshal
+-            --output marshal.c
++            --output ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.c
+             marshals.list
+         VERBATIM
+         DEPENDS
+@@ -93,7 +96,7 @@ function(wintc_glib_genmarshal)
+     add_custom_target(
+         marshal-codegen
+         DEPENDS
+-            src/marshal.c
+-            src/marshal.h
++            ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.c
++            ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.h
+     )
+ endfunction()
+diff --git a/packaging/cmake-inc/libraries/CMakeLists.txt b/packaging/cmake-inc/libraries/CMakeLists.txt
+index ca1267d..f62c586 100644
+--- a/packaging/cmake-inc/libraries/CMakeLists.txt
++++ b/packaging/cmake-inc/libraries/CMakeLists.txt
+@@ -38,8 +38,8 @@ function(wintc_install_public_headers)
+     get_target_property(LIB_SOURCES ${PROJECT_NAME} SOURCES)
+ 
+     foreach (SOURCE_FILEPATH IN LISTS LIB_SOURCES)
+-        if (${SOURCE_FILEPATH} MATCHES "^public/(.+)")
+-            list(APPEND LIB_PUBLIC_HEADERS ${CMAKE_MATCH_0})
++        if (${SOURCE_FILEPATH} MATCHES "public/(.+)")
++            list(APPEND LIB_PUBLIC_HEADERS ${SOURCE_FILEPATH})
+         else()
+             continue()
+         endif()
+@@ -49,7 +49,7 @@ function(wintc_install_public_headers)
+     # one for install, and one strictly for local lib builds
+     #
+     set(LIB_HEADER_DIR "${LIB_NAME_SIMPLE}")
+-    configure_file(public/libapi.h.in ${PROJECT_ROOT}/public/libapi.h @ONLY)
++    configure_file(public/libapi.h.in ${CMAKE_CURRENT_BINARY_DIR}/public/libapi.h @ONLY)
+ 
+     set(LIB_HEADER_DIR "${PROJECT_ROOT}/public")
+     configure_file(public/libapi.h.in wintc/${LIB_NAME_SIMPLE}.h @ONLY)
+@@ -63,7 +63,7 @@ function(wintc_install_public_headers)
+           DESTINATION ${LIB_INCLUDEDIR}
+     )
+     install(
+-        FILES public/libapi.h
++        FILES ${CMAKE_CURRENT_BINARY_DIR}/public/libapi.h
+           DESTINATION ${WINTC_LIB_INCLUDEDIR}
+           RENAME ${LIB_NAME_SIMPLE}.h
+     )
+diff --git a/packaging/cmake-inc/locale/CMakeLists.txt b/packaging/cmake-inc/locale/CMakeLists.txt
+index c25f6b1..5215ae9 100644
+--- a/packaging/cmake-inc/locale/CMakeLists.txt
++++ b/packaging/cmake-inc/locale/CMakeLists.txt
+@@ -43,7 +43,7 @@ set(
+ set(WINTC_CONFIG_H_IN_PATH ${CMAKE_CURRENT_LIST_DIR}/config.h.in)
+ 
+ function(wintc_create_config_h)
+-    configure_file(${WINTC_CONFIG_H_IN_PATH} ${PROJECT_ROOT}/src/config.h @ONLY)
++    configure_file(${WINTC_CONFIG_H_IN_PATH} ${CMAKE_CURRENT_BINARY_DIR}/src/config.h @ONLY)
+ endfunction()
+ 
+ # Define build for meta.h
+@@ -51,7 +51,7 @@ endfunction()
+ set(WINTC_META_H_IN_PATH ${CMAKE_CURRENT_LIST_DIR}/meta.h.in)
+ 
+ function(wintc_create_meta_h)
+-    configure_file(${WINTC_META_H_IN_PATH} ${PROJECT_ROOT}/src/meta.h @ONLY)
++    configure_file(${WINTC_META_H_IN_PATH} ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h @ONLY)
+ endfunction()
+ 
+ # Define build for languages
+diff --git a/packaging/cmake-inc/resources/CMakeLists.txt b/packaging/cmake-inc/resources/CMakeLists.txt
+index 604ca2e..882bdd0 100644
+--- a/packaging/cmake-inc/resources/CMakeLists.txt
++++ b/packaging/cmake-inc/resources/CMakeLists.txt
+@@ -6,6 +6,7 @@ function(wintc_compile_resources)
+     set(GRESOURCE_DEPENDENCIES)
+ 
+     find_program(GLIB_COMPILE_RESOURCES glib-compile-resources REQUIRED)
++    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
+ 
+     execute_process(
+         COMMAND ${GLIB_COMPILE_RESOURCES} --generate-dependencies resources.xml
+@@ -18,11 +19,11 @@ function(wintc_compile_resources)
+     list(TRANSFORM GRESOURCE_DEPENDENCIES PREPEND "src/res/")
+ 
+     add_custom_command(
+-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/resources.c
++        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/res
+         COMMAND ${GLIB_COMPILE_RESOURCES}
+         ARGS
+-            --target=../resources.c
++            --target=${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
+             --generate
+             resources.xml
+         VERBATIM
+@@ -33,6 +34,6 @@ function(wintc_compile_resources)
+     add_custom_target(
+         build-gresources
+         DEPENDS
+-            src/resources.c
++            ${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
+     )
+ endfunction()
+diff --git a/shared/comctl/CMakeLists.txt b/shared/comctl/CMakeLists.txt
+index 9e801da..58e6e95 100644
+--- a/shared/comctl/CMakeLists.txt
++++ b/shared/comctl/CMakeLists.txt
+@@ -32,7 +32,7 @@ wintc_compile_resources()
+ 
+ add_library(
+     libwintc-comctl
+-    src/resources.c
++    ${CMAKE_CURRENT_BINARY_DIR}/src/resources.c
+     src/animctl.c
+     public/animctl.h
+     src/cpl.c
+diff --git a/shared/comgtk/CMakeLists.txt b/shared/comgtk/CMakeLists.txt
+index 0a918a2..d3f1d5f 100644
+--- a/shared/comgtk/CMakeLists.txt
++++ b/shared/comgtk/CMakeLists.txt
+@@ -28,8 +28,11 @@ wintc_resolve_library(gio-2.0  GIO)
+ wintc_resolve_library(glib-2.0 GLIB)
+ wintc_resolve_library(gtk+-3.0 GTK3)
+ 
+-configure_file(public/location.h.in ${PROJECT_ROOT}/public/location.h @ONLY)
+-configure_file(src/version.c.in   ${PROJECT_ROOT}/src/version.c   @ONLY)
++configure_file(public/location.h.in ${CMAKE_CURRENT_BINARY_DIR}/public/location.h @ONLY)
++configure_file(src/version.c.in   ${CMAKE_CURRENT_BINARY_DIR}/src/version.c   @ONLY)
++
++file(COPY public/errors.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/public)
++file(COPY public/version.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/public)
+ 
+ add_library(
+     libwintc-comgtk
+@@ -58,7 +61,7 @@ add_library(
+     public/list.h
+     src/listbox.c
+     public/listbox.h
+-    public/location.h
++    ${CMAKE_CURRENT_BINARY_DIR}/public/location.h
+     src/marshal.c
+     public/marshal.h
+     src/memory.c
+@@ -78,7 +81,7 @@ add_library(
+     public/strings.h
+     src/styles.c
+     public/styles.h
+-    src/version.c
++    ${CMAKE_CURRENT_BINARY_DIR}/src/version.c
+     public/version.h
+     src/window.c
+     public/window.h
+@@ -100,6 +103,7 @@ target_include_directories(
+     libwintc-comgtk
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/public
+     PRIVATE ${GIO_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+diff --git a/shared/registry/CMakeLists.txt b/shared/registry/CMakeLists.txt
+index 9454b4f..8a03a38 100644
+--- a/shared/registry/CMakeLists.txt
++++ b/shared/registry/CMakeLists.txt
+@@ -37,9 +37,9 @@ wintc_gdbus_codegen(
+ 
+ add_library(
+     libwintc-registry
+-    public/reg-dbus.h
+-    src/reg-dbus.c
+-    src/reg-dbus.h
++    ${CMAKE_CURRENT_BINARY_DIR}/public/reg-dbus.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/reg-dbus.c
++    ${CMAKE_CURRENT_BINARY_DIR}/src/reg-dbus.h
+     src/regwrap.c
+     public/regwrap.h
+     src/variant.c
+@@ -62,6 +62,7 @@ target_include_directories(
+     libwintc-registry
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/public
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+diff --git a/shared/registry/src/regwrap.c b/shared/registry/src/regwrap.c
+index 4dbefbe..225d1bc 100644
+--- a/shared/registry/src/regwrap.c
++++ b/shared/registry/src/regwrap.c
+@@ -1,7 +1,7 @@
+ #include <glib.h>
+ #include <wintc/comgtk.h>
+ 
+-#include "../public/reg-dbus.h"
++#include "reg-dbus.h"
+ #include "../public/regwrap.h"
+ 
+ //
+diff --git a/shared/shcommon/CMakeLists.txt b/shared/shcommon/CMakeLists.txt
+index 8f68ddd..b773c92 100644
+--- a/shared/shcommon/CMakeLists.txt
++++ b/shared/shcommon/CMakeLists.txt
+@@ -33,8 +33,8 @@ add_library(
+     libwintc-shcommon
+     src/fs.c
+     public/fs.h
+-    src/marshal.c
+-    src/marshal.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.c
++    ${CMAKE_CURRENT_BINARY_DIR}/src/marshal.h
+     src/monitor.c
+     public/monitor.h
+     src/path.c
+@@ -59,6 +59,7 @@ target_include_directories(
+     libwintc-shcommon
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+diff --git a/shared/shellext/CMakeLists.txt b/shared/shellext/CMakeLists.txt
+index f94dc1d..1a370b8 100644
+--- a/shared/shellext/CMakeLists.txt
++++ b/shared/shellext/CMakeLists.txt
+@@ -29,7 +29,7 @@ wintc_resolve_library(gtk+-3.0     GTK3)
+ wintc_resolve_library(wintc-comgtk WINTC_COMGTK)
+ wintc_resolve_library(wintc-exec   WINTC_EXEC)
+ 
+-configure_file(src/host_priv.h.in ${PROJECT_ROOT}/src/host_priv.h @ONLY)
++configure_file(src/host_priv.h.in ${CMAKE_CURRENT_BINARY_DIR}/src/host_priv.h @ONLY)
+ 
+ add_library(
+     libwintc-shellext
+@@ -38,7 +38,7 @@ add_library(
+     public/error.h
+     src/host.c
+     public/host.h
+-    src/host_priv.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/host_priv.h
+     src/if_uihost.c
+     public/if_uihost.h
+     src/if_view.c
+@@ -65,6 +65,7 @@ target_include_directories(
+     libwintc-shellext
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+diff --git a/shared/shlang/CMakeLists.txt b/shared/shlang/CMakeLists.txt
+index 9cc52b4..2fa4924 100644
+--- a/shared/shlang/CMakeLists.txt
++++ b/shared/shlang/CMakeLists.txt
+@@ -26,14 +26,14 @@ wintc_resolve_library(gtk+-3.0       GTK3)
+ wintc_resolve_library(wintc-comgtk   WINTC_COMGTK)
+ wintc_resolve_library(wintc-shcommon WINTC_SHCOMMON)
+ 
+-configure_file(public/domain.h.in ${PROJECT_ROOT}/public/domain.h @ONLY)
++configure_file(public/domain.h.in ${CMAKE_CURRENT_BINARY_DIR}/public/domain.h @ONLY)
+ 
+ wintc_create_config_h()
+ 
+ add_library(
+     libwintc-shlang
+-    src/config.h
+-    public/domain.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/config.h
++    ${CMAKE_CURRENT_BINARY_DIR}/public/domain.h
+     src/controls.c
+     public/controls.h
+     src/places.c
+@@ -59,6 +59,7 @@ target_include_directories(
+     libwintc-shlang
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+diff --git a/shell/cpl/desk/CMakeLists.txt b/shell/cpl/desk/CMakeLists.txt
+index add9fc6..1b83b94 100644
+--- a/shell/cpl/desk/CMakeLists.txt
++++ b/shell/cpl/desk/CMakeLists.txt
+@@ -38,7 +38,7 @@ add_executable(
+     src/application.c
+     src/application.h
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+     src/monitor.c
+     src/monitor.h
+     src/pagedesk.c
+@@ -64,6 +64,7 @@ target_compile_options(
+ target_include_directories(
+     wintc-cpl-desk
+     SYSTEM
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}
+diff --git a/shell/cpl/sysdm/CMakeLists.txt b/shell/cpl/sysdm/CMakeLists.txt
+index a5d5481..8b18905 100644
+--- a/shell/cpl/sysdm/CMakeLists.txt
++++ b/shell/cpl/sysdm/CMakeLists.txt
+@@ -41,7 +41,7 @@ add_executable(
+     src/application.h
+     src/intapi.h
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+     src/pagegen.c
+     src/pagegen.h
+     src/resources.c
+@@ -63,6 +63,7 @@ target_compile_options(
+ target_include_directories(
+     wintc-cpl-sysdm
+     SYSTEM
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GDK_PIXBUF_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+diff --git a/shell/exitwin/CMakeLists.txt b/shell/exitwin/CMakeLists.txt
+index a9675f5..612f212 100644
+--- a/shell/exitwin/CMakeLists.txt
++++ b/shell/exitwin/CMakeLists.txt
+@@ -36,7 +36,7 @@ add_executable(
+     src/application.c
+     src/application.h
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+ )
+ 
+ target_compile_options(
+@@ -47,6 +47,7 @@ target_compile_options(
+ target_include_directories(
+     wintc-exitwin
+     SYSTEM
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GIO_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+diff --git a/shell/run/CMakeLists.txt b/shell/run/CMakeLists.txt
+index 468f00d..0bf4085 100644
+--- a/shell/run/CMakeLists.txt
++++ b/shell/run/CMakeLists.txt
+@@ -41,7 +41,7 @@ add_executable(
+     src/history.h
+     src/history.c
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+ )
+ 
+ set_target_properties(
+@@ -59,6 +59,7 @@ target_include_directories(
+     wintc-shell-run
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GDK_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+diff --git a/shell/taskband/CMakeLists.txt b/shell/taskband/CMakeLists.txt
+index dca8ae0..58ae1a3 100644
+--- a/shell/taskband/CMakeLists.txt
++++ b/shell/taskband/CMakeLists.txt
+@@ -48,7 +48,7 @@ set(
+     src/application.c
+     src/application.h
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+     src/resources.c
+     src/toolbar.c
+     src/toolbar.h
+@@ -110,6 +110,7 @@ target_include_directories(
+     wintc-taskband
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${CANBERRA_INCLUDE_DIRS}
+     PRIVATE ${CANBERRA_GTK3_INCLUDE_DIRS}
+     PRIVATE ${GARCON_INCLUDE_DIRS}
+diff --git a/windows/notepad/CMakeLists.txt b/windows/notepad/CMakeLists.txt
+index dabca6e..44467c4 100644
+--- a/windows/notepad/CMakeLists.txt
++++ b/windows/notepad/CMakeLists.txt
+@@ -37,7 +37,7 @@ add_executable(
+     src/application.c
+     src/application.h
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+     src/resources.c
+     src/window.c
+     src/window.h
+@@ -73,6 +73,7 @@ target_include_directories(
+     wintc-notepad
+     SYSTEM
+     BEFORE
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+diff --git a/windows/taskmgr/CMakeLists.txt b/windows/taskmgr/CMakeLists.txt
+index cb3cc69..baf48a8 100644
+--- a/windows/taskmgr/CMakeLists.txt
++++ b/windows/taskmgr/CMakeLists.txt
+@@ -39,7 +39,7 @@ add_executable(
+     src/application.h
+     src/intapi.h
+     src/main.c
+-    src/meta.h
++    ${CMAKE_CURRENT_BINARY_DIR}/src/meta.h
+     src/pageproc.c
+     src/pageproc.h
+     src/procmon.c
+@@ -63,6 +63,7 @@ target_compile_options(
+ target_include_directories(
+     wintc-taskmgr
+     SYSTEM
++    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}

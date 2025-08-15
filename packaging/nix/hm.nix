@@ -28,22 +28,6 @@ let
       Terminal=false
       Hidden=false
     '');
-  overrideSKU =
-    path: value:
-    if
-      builtins.elem (builtins.head path) [
-        "cursors"
-        "fonts"
-        "icons"
-        "sounds"
-        "themes"
-      ]
-    then
-      value
-    else
-      value.overrideAttrs (old: {
-        sku = cfg.SKU;
-      });
 in
 {
   options.win-tc = {
@@ -71,15 +55,15 @@ in
 
     theme = mkOption {
       description = "Theme to use";
-      default = "luna-blue";
+      default = "Windows XP style (Blue)";
       type = types.nullOr (
         types.enum [
-          "native"
-          "professional"
-          "luna-blue"
-          "luna-homestead"
-          "luna-metallic"
-          "zune"
+          "Professional"
+          "Windows Classic style"
+          "Windows XP style (Blue)"
+          "Windows XP style (Olive Green)"
+          "Windows XP style (Silver)"
+          "Zune style"
         ]
       );
     };
@@ -138,9 +122,9 @@ in
 
   config = lib.mkIf (cfg.enable && cfg.package != null) (
     let
-      # we need to stop at the wrapper (which has the .overrideAttrs)
-      cond = x: !(x ? "type" && x.type == "derivation");
-      pkg = lib.mapAttrsRecursiveCond cond overrideSKU cfg.package;
+      pkg = cfg.package.overrideAttrs (old: {
+        sku = cfg.SKU;
+      });
     in
     lib.mkMerge [
       {
@@ -161,14 +145,9 @@ in
             (mkStartupEntry "WinTC Taskband" "wintc-taskband")
           ];
         };
-        home.packages = with pkg; [
-          base.bldtag
-          base.regsvc
-          base.smss
-          shell.desktop
-          shell.exitwin
-          shell.run
-          shell.taskband
+        home.packages = [
+          pkg
+          pkgs.dejavu_fonts
         ];
       }
 
@@ -177,53 +156,30 @@ in
           enable = true;
           x11.enable = true;
           name = cursors.${cfg.cursor};
-          package = pkg.cursors.${cfg.cursor}.standard;
+          package = pkg;
         };
         xfconf.settings."xsettings"."Gtk/CursorThemeName" = cursors.${cfg.cursor};
-        home.packages = [ pkg.cursors.${cfg.cursor}.standard ];
       }))
 
       (lib.mkIf (cfg.icons != null) ({
         gtk.gtk3.iconTheme = {
           name = cfg.icons;
-          package = pkg.icons.${cfg.icons};
         };
-        home.packages = [ pkg.icons.${cfg.icons} ];
         xfconf.settings."xsettings"."Net/IconThemeName" = cfg.icons;
       }))
 
-      (lib.mkIf (cfg.theme != null) (
-        let
-          package = lib.getAttrFromPath (lib.splitString "-" cfg.theme) pkg.themes;
-          name = builtins.head (builtins.attrNames (builtins.readDir "${package}/share/themes"));
-        in
-        {
-          gtk.gtk3.theme = { inherit name package; };
-          xfconf.settings."xsettings" = {
-            "Net/ThemeName" = name;
-            "Xfce/SyncThemes" = true;
-          };
-          home.packages = [ package ];
-        }
-      ))
-
-      (lib.mkIf cfg.installApplications {
-        home.packages = with pkg; [
-          shell.cpl.desk
-          shell.cpl.printers
-          shell.cpl.sysdm
-          shell.explorer
-          shell.shext.zip
-          shell.winver
-          wallpapers
-          windows.notepad
-          windows.taskmgr
-        ];
+      (lib.mkIf (cfg.theme != null) {
+        gtk.gtk3.theme = {
+          name = cfg.theme;
+        };
+        xfconf.settings."xsettings" = {
+          "Net/ThemeName" = cfg.theme;
+          "Xfce/SyncThemes" = true;
+        };
       })
 
       (lib.mkIf cfg.enableFonts {
         fonts.fontconfig.enable = true;
-        home.packages = [ pkg.fonts ];
         xfconf.settings = {
           "xfwm4"."general/title_font" = "Trebuchet MS Bold 10";
           "xsettings" = {
@@ -241,7 +197,6 @@ in
           "Net/EnableInputFeedbackSounds" = true;
           "Net/SoundThemeName" = "Windows XP Default";
         };
-        home.packages = [ pkg.sounds ];
       })
 
       (lib.mkIf cfg.enableShortcuts {

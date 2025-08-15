@@ -267,6 +267,12 @@ then
     exit 1
 fi
 
+if [[ $DIST_ID -eq "nix" ]]
+then
+    echo "chkdeps: Skipping check for nix!" >&2
+    exit 0
+fi
+
 # Iterate through components to build now, identify their deps
 #
 while IFS= read -u "${buildlist_fd}" -r rel_target_dir

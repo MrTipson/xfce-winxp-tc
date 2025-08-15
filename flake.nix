@@ -9,9 +9,10 @@
       forAllSystems = with nixpkgs; (lib.genAttrs lib.systems.flakeExposed);
     in
     {
-      packages = forAllSystems (
-        system: import ./packaging/nix/package.nix (nixpkgs.legacyPackages.${system})
-      );
+      packages = forAllSystems (system: {
+        components = import ./packaging/nix/package.nix (nixpkgs.legacyPackages.${system});
+        default = (nixpkgs.legacyPackages.${system}).callPackage ./packaging/nix/package3.nix { };
+      });
       homeManagerModules.default = import ./packaging/nix/hm.nix;
     };
 }

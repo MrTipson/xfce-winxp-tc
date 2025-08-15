@@ -53,7 +53,7 @@ then
     case "${DIST_ID}" in
         # For all these distros, only <distro>-std is valid
         #
-        apk | archpkg | bsdpkg | deb | rpm)
+        apk | archpkg | bsdpkg | deb | rpm | nix)
             if [[ -z "${DIST_ID_EXT}" ]]
             then
                 DIST_ID_EXT="std"
@@ -137,6 +137,13 @@ which rpm >/dev/null 2>&1
 if [[ $? -eq 0 ]]
 then
     set_pkgmgr "rpm" "std"
+fi
+
+# Check Nix
+#
+if [[ ! -z $NIX_BUILD_TOP ]]
+then
+    set_pkgmgr "nix" "std"
 fi
 
 # Check Void Linux
