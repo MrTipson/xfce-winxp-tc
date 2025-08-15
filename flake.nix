@@ -10,8 +10,8 @@
     in
     {
       packages = forAllSystems (system: {
-        components = import ./packaging/nix/package.nix (nixpkgs.legacyPackages.${system});
-        default = (nixpkgs.legacyPackages.${system}).callPackage ./packaging/nix/package3.nix { };
+        components = import ./packaging/nix/components.nix (nixpkgs.legacyPackages.${system});
+        default = (nixpkgs.legacyPackages.${system}).callPackage ./packaging/nix/package.nix { };
       });
       homeManagerModules.default = import ./packaging/nix/hm.nix;
     };
