@@ -1,0 +1,136 @@
+diff --git a/base/smss/CMakeLists.txt b/base/smss/CMakeLists.txt
+index 4ab4fcd..9d535fe 100644
+--- a/base/smss/CMakeLists.txt
++++ b/base/smss/CMakeLists.txt
+@@ -23,6 +23,7 @@ include(../../packaging/cmake-inc/linking/CMakeLists.txt)
+ include(../../packaging/cmake-inc/packaging/CMakeLists.txt)
+ 
+ wintc_resolve_library(glib-2.0       GLIB)
++wintc_resolve_library(gio-unix-2.0 GIO_UNIX)
+ wintc_resolve_library(gtk+-3.0       GTK3)
+ wintc_resolve_library(wintc-comgtk   WINTC_COMGTK)
+ wintc_resolve_library(wintc-exec     WINTC_EXEC)
+@@ -64,6 +65,7 @@ target_include_directories(
+     SYSTEM
+     BEFORE
+     PRIVATE ${GLIB_INCLUDE_DIRS}
++    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+     PRIVATE ${WINTC_EXEC_INCLUDE_DIRS}
+diff --git a/shared/exec/CMakeLists.txt b/shared/exec/CMakeLists.txt
+index 5889eaf..fb539dd 100644
+--- a/shared/exec/CMakeLists.txt
++++ b/shared/exec/CMakeLists.txt
+@@ -22,6 +22,7 @@ include(../../packaging/cmake-inc/packaging/CMakeLists.txt)
+ 
+ wintc_resolve_library(gdk-3.0      GDK)
+ wintc_resolve_library(gio-2.0      GIO)
++wintc_resolve_library(gio-unix-2.0 GIO_UNIX)
+ wintc_resolve_library(glib-2.0     GLIB)
+ wintc_resolve_library(gtk+-3.0     GTK3)
+ wintc_resolve_library(wintc-comgtk WINTC_COMGTK)
+@@ -58,6 +59,7 @@ target_include_directories(
+     BEFORE
+     PRIVATE ${GDK_INCLUDE_DIRS}
+     PRIVATE ${GIO_INCLUDE_DIRS}
++    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+@@ -67,6 +69,7 @@ target_link_directories(
+     libwintc-exec
+     PRIVATE ${GDK_LIBRARY_DIRS}
+     PRIVATE ${GIO_LIBRARY_DIRS}
++    PRIVATE ${GIO_UNIX_LIBRARY_DIRS}
+     PRIVATE ${GLIB_LIBRARY_DIRS}
+     PRIVATE ${GTK3_LIBRARY_DIRS}
+     PRIVATE ${WINTC_COMGTK_LIBRARY_DIRS}
+@@ -76,6 +79,7 @@ target_link_libraries(
+     libwintc-exec
+     PRIVATE ${GDK_LIBRARIES}
+     PRIVATE ${GIO_LIBRARIES}
++    PRIVATE ${GIO_UNIX_LIBRARIES}
+     PRIVATE ${GLIB_LIBRARIES}
+     PRIVATE ${GTK3_LIBRARIES}
+     PRIVATE ${WINTC_COMGTK_LIBRARIES}
+diff --git a/shared/shell/CMakeLists.txt b/shared/shell/CMakeLists.txt
+index 0d68965..ae207d1 100644
+--- a/shared/shell/CMakeLists.txt
++++ b/shared/shell/CMakeLists.txt
+@@ -25,6 +25,7 @@ wintc_resolve_library(libcanberra      CANBERRA)
+ wintc_resolve_library(libcanberra-gtk3 CANBERRA_GTK3)
+ wintc_resolve_library(gdk-pixbuf-2.0   GDK_PIXBUF)
+ wintc_resolve_library(glib-2.0         GLIB)
++wintc_resolve_library(gio-unix-2.0 GIO_UNIX)
+ wintc_resolve_library(gtk+-3.0         GTK3)
+ wintc_resolve_library(wintc-comctl     WINTC_COMCTL)
+ wintc_resolve_library(wintc-comgtk     WINTC_COMGTK)
+@@ -89,6 +90,7 @@ target_include_directories(
+     PRIVATE ${CANBERRA_GTK3_INCLUDE_DIRS}
+     PRIVATE ${GDK_PIXBUF_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
++    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+diff --git a/shared/shellext/CMakeLists.txt b/shared/shellext/CMakeLists.txt
+index e20b88a..f94dc1d 100644
+--- a/shared/shellext/CMakeLists.txt
++++ b/shared/shellext/CMakeLists.txt
+@@ -24,6 +24,7 @@ include(../../packaging/cmake-inc/packaging/CMakeLists.txt)
+ include(../../packaging/cmake-inc/resources/CMakeLists.txt)
+ 
+ wintc_resolve_library(glib-2.0     GLIB)
++wintc_resolve_library(gio-unix-2.0 GIO_UNIX)
+ wintc_resolve_library(gtk+-3.0     GTK3)
+ wintc_resolve_library(wintc-comgtk WINTC_COMGTK)
+ wintc_resolve_library(wintc-exec   WINTC_EXEC)
+@@ -66,6 +67,7 @@ target_include_directories(
+     BEFORE
+     PRIVATE ${GLIB_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
++    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+     PRIVATE ${WINTC_EXEC_INCLUDE_DIRS}
+ )
+diff --git a/shell/cpl/sysdm/CMakeLists.txt b/shell/cpl/sysdm/CMakeLists.txt
+index ac042c0..a5d5481 100644
+--- a/shell/cpl/sysdm/CMakeLists.txt
++++ b/shell/cpl/sysdm/CMakeLists.txt
+@@ -23,6 +23,7 @@ include(../../../packaging/cmake-inc/resources/CMakeLists.txt)
+ 
+ wintc_resolve_library(gdk-pixbuf-2.0 GDK_PIXBUF)
+ wintc_resolve_library(glib-2.0       GLIB)
++wintc_resolve_library(gio-unix-2.0   GIO_UNIX)
+ wintc_resolve_library(gtk+-3.0       GTK3)
+ wintc_resolve_library(wintc-comctl   WINTC_COMCTL)
+ wintc_resolve_library(wintc-comgtk   WINTC_COMGTK)
+@@ -64,6 +65,7 @@ target_include_directories(
+     SYSTEM
+     PRIVATE ${GDK_PIXBUF_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
++    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}
+diff --git a/shell/run/CMakeLists.txt b/shell/run/CMakeLists.txt
+index 701c486..468f00d 100644
+--- a/shell/run/CMakeLists.txt
++++ b/shell/run/CMakeLists.txt
+@@ -22,6 +22,7 @@ include(../../packaging/cmake-inc/packaging/CMakeLists.txt)
+ 
+ wintc_resolve_library(gdk-3.0        GDK)
+ wintc_resolve_library(glib-2.0       GLIB)
++wintc_resolve_library(gio-unix-2.0   GIO_UNIX)
+ wintc_resolve_library(gtk+-3.0       GTK3)
+ wintc_resolve_library(wintc-comctl   WINTC_COMCTL)
+ wintc_resolve_library(wintc-comgtk   WINTC_COMGTK)
+@@ -60,6 +61,7 @@ target_include_directories(
+     BEFORE
+     PRIVATE ${GDK_INCLUDE_DIRS}
+     PRIVATE ${GLIB_INCLUDE_DIRS}
++    PRIVATE ${GIO_UNIX_INCLUDE_DIRS}
+     PRIVATE ${GTK3_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMCTL_INCLUDE_DIRS}
+     PRIVATE ${WINTC_COMGTK_INCLUDE_DIRS}

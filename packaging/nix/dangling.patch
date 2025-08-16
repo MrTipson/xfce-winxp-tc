@@ -1,0 +1,14 @@
+diff --git a/tools/bldutils/bldmaps/bldmaps.py b/tools/bldutils/bldmaps/bldmaps.py
+index 80fb1bb..122d733 100644
+--- a/tools/bldutils/bldmaps/bldmaps.py
++++ b/tools/bldutils/bldmaps/bldmaps.py
+@@ -80,6 +80,9 @@ def main():
+                 rel_res_name = rel_res_name.strip()
+ 
+                 for size in sizes:
++                    if not (res_path / size / f"{rel_res_name}.png").exists():
++                        continue
++
+                     target_res_path = res_path_rel_to_mapping / size / f"{rel_res_name}.png"
+                     theme_icon_path = output_dir / size / f"{rel_icon_path}.png"
+ 

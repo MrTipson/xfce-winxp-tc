@@ -135,6 +135,10 @@ case "${DIST_ID}" in
     bsdpkg)
         dist_prefix="/usr/local"
         ;;
+    nix)
+        # $out is set by the nix derivation builder
+        dist_prefix="$out"
+        ;;
 esac
 
 # Ensure the build dir exists
