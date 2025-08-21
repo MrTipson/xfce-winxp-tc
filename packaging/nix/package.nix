@@ -71,6 +71,7 @@ let
       ./venv.patch
       ./gio-unix.patch
       ./dangling.patch
+      ./xdg.patch
     ];
 
     dontConfigure = true;

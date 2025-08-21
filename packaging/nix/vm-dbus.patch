@@ -1,0 +1,10 @@
+diff --git a/base/smss/res/xinitrc.in b/base/smss/res/xinitrc.in
+index ac3b0b5..a0e608c 100644
+--- a/base/smss/res/xinitrc.in
++++ b/base/smss/res/xinitrc.in
+@@ -9,4 +9,4 @@ xfsettingsd --disable-wm-check --replace --daemon
+ 
+ # Launch the session with DBus
+ #
+-dbus-run-session -- smss
++smss

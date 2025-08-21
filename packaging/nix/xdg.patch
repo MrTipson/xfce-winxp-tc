@@ -1,0 +1,23 @@
+diff --git a/base/smss/res/startwintc.in b/base/smss/res/startwintc.in
+index a37bd31..4ad4e62 100644
+--- a/base/smss/res/startwintc.in
++++ b/base/smss/res/startwintc.in
+@@ -2,18 +2,6 @@
+ 
+ # Set up XDG vars
+ #
+-XDG_DATA_DIRS="/usr/local/share:/usr/share"
+-export XDG_DATA_DIRS
+-
+-XDG_CONFIG_DIRS="/etc/xdg"
+-export XDG_CONFIG_DIRS
+-
+-XDG_CONFIG_HOME=$HOME/.config
+-export XDG_CONFIG_HOME
+-
+-XDG_CACHE_HOME=$HOME/.cache
+-export XDG_CACHE_HOME
+-
+ DESKTOP_SESSION="WINTC"
+ XDG_CURRENT_DESKTOP="WINTC"
+ export DESKTOP_SESSION

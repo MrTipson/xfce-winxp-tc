@@ -13,5 +13,9 @@
         default = (nixpkgs.legacyPackages.${system}).callPackage ./packaging/nix/package.nix { };
       });
       homeManagerModules.default = import ./packaging/nix/hm.nix;
+      nixosConfigurations.vm = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [ ./packaging/nix/vm.nix ];
+      };
     };
 }
